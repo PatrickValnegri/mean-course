@@ -1,15 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+
+import { Post } from '../post.model';
+import { PostsService } from '../posts.service';
 
 @Component({
   selector: 'app-post-list',
   templateUrl: './post-list.component.html',
   styleUrls: ['./post-list.component.css']
 })
-export class PostListComponent {
-  // posts = [
-  //   {title: 'First post', content: `This is the first post's content`},
-  //   {title: 'Second post', content: `This is the second post's content`},
-  //   {title: 'Third post', content: `This is the third post's content`}
-  // ];
-  posts = [];
+export class PostListComponent implements OnInit, OnDestroy {
+  posts: Post[] = [];
+  private postsSub: Subscription;
+
+  //postsService: PostService;
+  //with keyword public it will create an instance of postsService
+  constructor(public postsService: PostsService) {
+    //this.postService = postsService;
+  }
+
+  //called when the component is created
+  ngOnInit() {
+    this.posts = this.postsService.getPosts();
+    this.postsSub = this.postsService.getPostUpdateListener()
+      .subscribe((posts: Post[]) => { //get notified when the array is changed
+        this.posts = posts;
+      });
+  }
+
+  ngOnDestroy() {
+    this.postsSub.unsubscribe(); //remove subscription and memory leak
+  }
 }

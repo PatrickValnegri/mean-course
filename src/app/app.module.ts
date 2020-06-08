@@ -30,6 +30,7 @@ import { PostCreateComponent } from './posts/post-create/post-create.component';
     MatToolbarModule,
     MatExpansionModule
   ],
+  //providers: [PostService], done this with @injectable on posts.service file
   providers: [],
   bootstrap: [AppComponent]
 })
