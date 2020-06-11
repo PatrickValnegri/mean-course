@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const Post = require('./models/post');
+const postsRoutes  = require('./routes/posts');
 
 const app = express();
 
@@ -17,6 +17,10 @@ mongoose.connect("mongodb+srv://patrick:RnVNjhlEnCEQdl38@cluster0-8yj3c.mongodb.
 .catch(() => {
   console.log('connection failed to database');
 });
+
+//JSON PARSER
+app.use(bodyParser.json()); //return a valid express middleware to parse json data
+app.use(bodyParser.urlencoded({extended: false})); //parse url encoded data
 
 //CORS ERROR
 app.use((req, res, next) => { //use a middleware
@@ -33,43 +37,7 @@ app.use((req, res, next) => { //use a middleware
   next(); //to concatenate middlewares
 });
 
-//JSON PARSER
-app.use(bodyParser.json()); //return a valid express middleware to parse json data
-app.use(bodyParser.urlencoded({extended: false})); //parse url encoded data
-
-//POST method
-app.post('/api/posts', (req, res, next) => {
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content
-  });
-  post.save().then(createdPost => {  //save the data into the db
-    res.status(201).json({
-      message: 'Post added succesfully',
-      postId: createdPost.id
-    });
-  });
-});
-
-//GET method
-app.get('/api/posts', (req, res, next) => {
-  Post.find() //return all entries
-  .then(documents => { //async
-    res.status(200).json({
-      message: 'Posts fetched succesfully!',
-      posts: documents
-    });
-  });
-});
-
-
-//DELETE method
-app.delete('/api/posts/:id', (req, res, next) => {
-  Post.deleteOne({_id: req.params.id}).then(() => {
-    res.status(200).json({
-      message: "Post deleted"
-    });
-  });
-});
+//posts routes
+app.use("/api/posts", postsRoutes);
 
 module.exports = app;

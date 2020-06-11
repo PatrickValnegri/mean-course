@@ -11,6 +11,7 @@ import { PostsService } from '../posts.service';
 })
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
+  isLoading = false;
   private postsSub: Subscription;
 
   //postsService: PostService;
@@ -21,9 +22,11 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   //called when the component is created
   ngOnInit() {
+    this.isLoading = true;
     this.postsService.getPosts();
     this.postsSub = this.postsService.getPostUpdateListener()
       .subscribe((posts: Post[]) => { //get notified when the array is changed
+        this.isLoading = false;
         this.posts = posts;
       });
   }
