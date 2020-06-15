@@ -48,3 +48,4 @@ Thumbs.db
 # Custom files
 package-lock.json
 e2e/
+backend/images/

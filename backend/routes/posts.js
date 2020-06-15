@@ -11,6 +11,7 @@ const MIME_TYPE_MAP = {
   'image/jpg': 'jpg'
 }
 
+//File storaging options
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     // return null/undefined if we dont find the mime type
@@ -72,11 +73,28 @@ router.patch(("/:id"), multer({storage: storage}).single("image"), (req, res, ne
 
 //GET method
 router.get('', (req, res, next) => {
-  Post.find() //return all entries
+  const pageSize = +req.query.pagesize; // +: to convert string to number
+  const currentPage = +req.query.page;
+  const postQuery = Post.find(); //Post.find() return all entries
+
+  let fetechedPosts;
+
+  if (pageSize && currentPage) {
+    postQuery //** Still cycle all the entries **//
+    .skip(pageSize * (currentPage - 1)) //skip the total element depending on the selected page
+    .limit(pageSize); //return the number of element selected
+  }
+
+  postQuery
   .then(documents => { //async
+    fetechedPosts = documents;
+    return Post.count(); //return the number of result
+  })
+  .then(count => {
     res.status(200).json({
       message: 'Posts fetched succesfully!',
-      posts: documents
+      posts: fetechedPosts,
+      maxPosts: count
     });
   });
 });
