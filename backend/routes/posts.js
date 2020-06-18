@@ -2,6 +2,7 @@ const expres = require('express');
 const multer = require('multer');
 
 const Post = require('../models/post');
+const checkAuth = require('../middleware/check-auth');
 
 const router = expres.Router();
 
@@ -31,7 +32,11 @@ const storage = multer.diskStorage({
 });
 
 //POST method
-router.post('', multer({storage: storage}).single("image"), (req, res, next) => {
+router.post(
+  '',
+  checkAuth,
+  multer({storage: storage}).single("image"), //extract file
+  (req, res, next) => {
   const url = req.protocol + '://' + req.get('host');
   const post = new Post({
     title: req.body.title,
@@ -50,7 +55,11 @@ router.post('', multer({storage: storage}).single("image"), (req, res, next) => 
 });
 
 //PATCH method
-router.patch(("/:id"), multer({storage: storage}).single("image"), (req, res, next) => {
+router.patch(
+  ("/:id"),
+  checkAuth,
+  multer({storage: storage}).single("image"),
+  (req, res, next) => {
   let imagePath = req.body.imagePath;
   if(req.file) {
     const url = req.protocol + '://' + req.get('host');
@@ -88,7 +97,7 @@ router.get('', (req, res, next) => {
   postQuery
   .then(documents => { //async
     fetechedPosts = documents;
-    return Post.count(); //return the number of result
+    return Post.estimatedDocumentCount(); //return the number of result
   })
   .then(count => {
     res.status(200).json({
@@ -115,7 +124,7 @@ router.get('/:id', (req, res, next) => {
 });
 
 //DELETE method
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', checkAuth, (req, res, next) => {
   Post.deleteOne({_id: req.params.id}).then(() => {
     res.status(200).json({
       message: "Post deleted"

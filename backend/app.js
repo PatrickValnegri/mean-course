@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const postsRoutes  = require('./routes/posts');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use((req, res, next) => { //use a middleware
   res.setHeader('Access-Control-Allow-Origin', '*'); // * = every domain
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-type, Accept'
+    'Origin, X-Requested-With, Content-type, Accept, Authorization'
   );
   res.setHeader(
     'Access-Control-Allow-Methods',
@@ -39,7 +40,8 @@ app.use((req, res, next) => { //use a middleware
   next(); //to concatenate middlewares
 });
 
-//posts routes
-app.use("/api/posts", postsRoutes);
+//routes definitions
+app.use('/api/posts', postsRoutes);
+app.use('/api/user', userRoutes);
 
 module.exports = app;
