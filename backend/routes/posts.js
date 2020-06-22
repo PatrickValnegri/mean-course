@@ -34,14 +34,15 @@ const storage = multer.diskStorage({
 //POST method
 router.post(
   '',
-  checkAuth,
+  checkAuth, //token verification
   multer({storage: storage}).single("image"), //extract file
   (req, res, next) => {
   const url = req.protocol + '://' + req.get('host');
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    imagePath: url + "/images/" + req.file.filename
+    imagePath: url + "/images/" + req.file.filename,
+    creator: req.userData.userId //from checkAuth middleware
   });
   post.save().then(createdPost => {  //save the data into the db
     res.status(201).json({
@@ -56,7 +57,7 @@ router.post(
 
 //PATCH method
 router.patch(
-  ("/:id"),
+  '/:id',
   checkAuth,
   multer({storage: storage}).single("image"),
   (req, res, next) => {
@@ -70,17 +71,24 @@ router.patch(
     _id: req.body.id,
     title: req.body.title,
     content: req.body.content,
-    imagePath: imagePath
+    imagePath: imagePath,
+    creator: req.userData.userId
   });
 
-  Post.updateOne({_id: req.params.id}, post).then(() => {
-    res.status(200).json({
-      message: "Post updated successful"
-    });
+  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post).then((result) => {
+    if (result.nModified > 0) { //check if we modify something
+      res.status(200).json({
+        message: "Post updated successful"
+      });
+    } else {
+      res.status(401).json({
+        message: "Not authorized"
+      });
+    }
   })
 });
 
-//GET method
+//GET method all post
 router.get('', (req, res, next) => {
   const pageSize = +req.query.pagesize; // +: to convert string to number
   const currentPage = +req.query.page;
@@ -125,10 +133,16 @@ router.get('/:id', (req, res, next) => {
 
 //DELETE method
 router.delete('/:id', checkAuth, (req, res, next) => {
-  Post.deleteOne({_id: req.params.id}).then(() => {
-    res.status(200).json({
-      message: "Post deleted"
-    });
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then((result) => {
+    if (result.n > 0) { //check if we delete something
+      res.status(200).json({
+        message: "Post deleted"
+      });
+    } else {
+      res.status(401).json({
+        message: "Not authorized"
+      });
+    }
   });
 });
 

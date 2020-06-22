@@ -27,8 +27,9 @@ export class PostsService {
             return {
               title: post.title,
               content: post.content,
-              id: post._id, //_ from _id is getting removed
-              imagePath: post.imagePath
+              id: post._id, //from _id to id (_ is removed)
+              imagePath: post.imagePath,
+              creator: post.creator
             };
           }),
         maxPosts: postData.maxPosts
@@ -38,7 +39,6 @@ export class PostsService {
     .subscribe((transformedPostData) => {
       this.posts = transformedPostData.posts;
 
-      //return [...this.posts]; //return a copy of the array
       //notify the array is changed
       this.postsUpdated.next({posts: [...this.posts], postCount: transformedPostData.maxPosts});
     });
@@ -92,7 +92,8 @@ export class PostsService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null //handled by the server
       };
     }
 

@@ -49,6 +49,7 @@ router.post('/login', (req, res, next) => {
           message: 'Authentication failed'
         });
       }
+
       //CORRECT AUTHENTICATION
       //token creation
       const token = jwt.sign(
@@ -58,9 +59,10 @@ router.post('/login', (req, res, next) => {
       );
 
       res.status(200).json({
-        message: 'Authentication succed',
+        message: 'Authentication succeded',
         token: token,
-        expiresIn: 3600 //1h = 3600 seconds
+        expiresIn: 3600, //1h = 3600 seconds
+        userId: fetchedUser._id
       });
     })
     .catch(err =>{
