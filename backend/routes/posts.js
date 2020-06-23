@@ -52,6 +52,10 @@ router.post(
         id: createdPost._id
       }
     });
+  }).catch(error => { //only thecnical errors
+    res.status(500).json({
+      message: 'Creating a post failed!'
+    });
   });
 });
 
@@ -75,7 +79,8 @@ router.patch(
     creator: req.userData.userId
   });
 
-  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post).then((result) => {
+  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post)
+  .then((result) => {
     if (result.nModified > 0) { //check if we modify something
       res.status(200).json({
         message: "Post updated successful"
@@ -85,7 +90,11 @@ router.patch(
         message: "Not authorized"
       });
     }
-  })
+  }).catch(error => { //only thecnical errors
+    res.status(500).json({
+      message: 'Updating a post failed!'
+    });
+  });
 });
 
 //GET method all post
@@ -113,6 +122,11 @@ router.get('', (req, res, next) => {
       posts: fetechedPosts,
       maxPosts: count
     });
+  })
+  .catch(error => { //only thecnical errors
+    res.status(500).json({
+      message: 'Fetching posts failed!'
+    });
   });
 });
 
@@ -128,7 +142,12 @@ router.get('/:id', (req, res, next) => {
     } else {
        res.status(404).json({message: 'Post not found'});
     }
-  });
+  })
+  .catch(error => { //only thecnical errors
+    res.status(500).json({
+      message: 'Fetching post failed!'
+    });
+  });;
 });
 
 //DELETE method
@@ -143,7 +162,12 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         message: "Not authorized"
       });
     }
-  });
+  })
+  .catch(error => { //only thecnical errors
+    res.status(500).json({
+      message: 'Deleting post failed!'
+    });
+  });;
 });
 
 module.exports = router;

@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { PostsService } from '../posts.service';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-post-create',
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.css']
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
   enteredTitle = '';
   enteredContent = '';
   post: Post;
@@ -21,13 +23,22 @@ export class PostCreateComponent implements OnInit {
 
   private mode = 'create';
   private postId: string;
+  private AuthStatusSub: Subscription;
 
   constructor(
     public postsService: PostsService,
-    public route: ActivatedRoute
+    public route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
+    //error handler: set false the spinning if an error appear after creating a post
+    this.AuthStatusSub = this.authService.getAuthStatusListener().subscribe(
+      authStatus => {
+        this.isLoading = false;
+      }
+    );
+
     //init form
     this.form = new FormGroup({
       title: new FormControl(null, {
@@ -43,7 +54,7 @@ export class PostCreateComponent implements OnInit {
     });
 
     //Handle edit mode
-    this.route.paramMap.subscribe((paramMap: ParamMap) =>{
+    this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('postId')) {
         this.mode = 'edit';
         this.postId = paramMap.get('postId');
@@ -107,5 +118,9 @@ export class PostCreateComponent implements OnInit {
     }
 
     this.form.reset();
+  }
+
+  ngOnDestroy() {
+    this.AuthStatusSub.unsubscribe();
   }
 }
