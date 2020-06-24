@@ -13,8 +13,13 @@ mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect("mongodb+srv://patrick:RnVNjhlEnCEQdl38@cluster0-8yj3c.mongodb.net/node-angular?retryWrites=true&w=majority").then(() => {
-  console.log('connected to database');
+mongoose.connect(
+  "mongodb+srv://patrick:" +
+  process.env.MONGO_ATLAS_PW + //pw stored in nodemon.js
+  "@cluster0-8yj3c.mongodb.net/node-angular?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    console.log('connected to database');
 })
 .catch(() => {
   console.log('connection failed to database');
